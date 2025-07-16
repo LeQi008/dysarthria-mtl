@@ -1,6 +1,7 @@
 dataset/*
 exp_results/*
-*.csv
+*.pth
+*.ckpt
 envs/*
 /venv
 /venvspice

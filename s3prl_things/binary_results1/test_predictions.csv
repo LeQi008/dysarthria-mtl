@@ -1,0 +1,50 @@
+name,path,category,predicted_score
+audio 11_speaker 4 mild_segment 1,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 11\speaker 4 mild\segment 1.wav,1,1
+audio 11_speaker 4 mild_segment 2,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 11\speaker 4 mild\segment 2.wav,1,1
+audio 11_speaker 4 mild_segment 6,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 11\speaker 4 mild\segment 6.wav,1,0
+audio 11_speaker 4 mild_segment 3,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 11\speaker 4 mild\segment 3.wav,1,1
+audio 7_speaker 1 normal_segment 86,E:\labelled_speech\YouTube Audio\clear speech\audio 7\speaker 1 normal\segment 86.wav,0,1
+audio 7_speaker 1 normal_segment 79,E:\labelled_speech\YouTube Audio\clear speech\audio 7\speaker 1 normal\segment 79.wav,0,1
+audio 7_speaker 1 normal_segment 1,E:\labelled_speech\YouTube Audio\clear speech\audio 7\speaker 1 normal\segment 1.wav,0,1
+audio 7_speaker 1 normal_segment 70,E:\labelled_speech\YouTube Audio\clear speech\audio 7\speaker 1 normal\segment 70.wav,0,0
+audio 7_speaker 1 normal_segment 44,E:\labelled_speech\YouTube Audio\clear speech\audio 7\speaker 1 normal\segment 44.wav,0,1
+audio 7_speaker 1 normal_segment 25,E:\labelled_speech\YouTube Audio\clear speech\audio 7\speaker 1 normal\segment 25.wav,0,1
+audio 5_speaker 2 normal_segment 7,E:\labelled_speech\YouTube Audio\clear speech\audio 5\speaker 2 normal\segment 7.wav,0,0
+audio 5_speaker 2 normal_segment 6,E:\labelled_speech\YouTube Audio\clear speech\audio 5\speaker 2 normal\segment 6.wav,0,0
+audio 5_speaker 2 normal_segment 1,E:\labelled_speech\YouTube Audio\clear speech\audio 5\speaker 2 normal\segment 1.wav,0,0
+audio 5_speaker 2 normal_segment 3,E:\labelled_speech\YouTube Audio\clear speech\audio 5\speaker 2 normal\segment 3.wav,0,0
+audio 5_speaker 2 normal_segment 17,E:\labelled_speech\YouTube Audio\clear speech\audio 5\speaker 2 normal\segment 17.wav,0,0
+audio 5_speaker 2 normal_segment 11,E:\labelled_speech\YouTube Audio\clear speech\audio 5\speaker 2 normal\segment 11.wav,0,0
+audio 22_speaker 1 normal_segment 1,E:\labelled_speech\YouTube Audio\clear speech\audio 22\speaker 1 normal\segment 1.wav,0,0
+audio 22_speaker 1 normal_segment 2,E:\labelled_speech\YouTube Audio\clear speech\audio 22\speaker 1 normal\segment 2.wav,0,0
+audio 22_speaker 1 normal_segment 6,E:\labelled_speech\YouTube Audio\clear speech\audio 22\speaker 1 normal\segment 6.wav,0,0
+audio 22_speaker 1 normal_segment 3,E:\labelled_speech\YouTube Audio\clear speech\audio 22\speaker 1 normal\segment 3.wav,0,0
+audio 5_speaker 3 mod_segment 10,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 5\speaker 3 mod\segment 10.wav,1,1
+audio 5_speaker 3 mod_segment 3,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 5\speaker 3 mod\segment 3.wav,1,1
+audio 5_speaker 3 mod_segment 4,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 5\speaker 3 mod\segment 4.wav,1,1
+audio 5_speaker 3 mod_segment 17,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 5\speaker 3 mod\segment 17.wav,1,1
+audio 5_speaker 3 mod_segment 33,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 5\speaker 3 mod\segment 33.wav,1,1
+audio 5_speaker 3 mod_segment 5,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 5\speaker 3 mod\segment 5.wav,1,1
+audio 5_speaker 3 mod_segment 27,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 5\speaker 3 mod\segment 27.wav,1,1
+audio 5_speaker 3 mod_segment 41,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 5\speaker 3 mod\segment 41.wav,1,0
+audio 5_speaker 3 mod_segment 45,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 5\speaker 3 mod\segment 45.wav,1,1
+audio 5_speaker 3 mod_segment 8,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 5\speaker 3 mod\segment 8.wav,1,1
+audio 16_speaker 1 sev_segment 1 chunk 2,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 16\speaker 1 sev\segment 1 chunk 2.wav,1,1
+audio 16_speaker 1 sev_segment 2 chunk 3,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 16\speaker 1 sev\segment 2 chunk 3.wav,1,1
+audio 16_speaker 1 sev_segment 1 chunk 1,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 16\speaker 1 sev\segment 1 chunk 1.wav,1,1
+audio 16_speaker 1 sev_segment 2 chunk 5,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 16\speaker 1 sev\segment 2 chunk 5.wav,1,1
+audio 2_speaker 2 sev_segment 2,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 2\speaker 2 sev\segment 2.wav,1,1
+audio 2_speaker 2 sev_segment 6,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 2\speaker 2 sev\segment 6.wav,1,1
+audio 2_speaker 2 sev_segment 4,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 2\speaker 2 sev\segment 4.wav,1,1
+audio 30_speaker 1 mod_segment 2,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 30\speaker 1 mod\segment 2.wav,1,0
+audio 30_speaker 1 mod_segment 3,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 30\speaker 1 mod\segment 3.wav,1,1
+audio 3_speaker 2 mod_segment 44,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 3\speaker 2 mod\segment 44.wav,1,1
+audio 3_speaker 2 mod_segment 54,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 3\speaker 2 mod\segment 54.wav,1,1
+audio 1_speaker 2 mild_segment 14,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 1\speaker 2 mild\segment 14.wav,1,1
+audio 1_speaker 2 mild_segment 3,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 1\speaker 2 mild\segment 3.wav,1,1
+audio 17_speaker 1 mild_segment 1,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 17\speaker 1 mild\segment 1.wav,1,1
+audio 17_speaker 1 mild_segment 2,E:\labelled_speech\YouTube Audio\dysarthric speech\audio 17\speaker 1 mild\segment 2.wav,1,1
+audio 4_speaker 3 normal_segment 4,E:\labelled_speech\YouTube Audio\clear speech\audio 4\speaker 3 normal\segment 4.wav,0,0
+audio 4_speaker 3 normal_segment 5,E:\labelled_speech\YouTube Audio\clear speech\audio 4\speaker 3 normal\segment 5.wav,0,0
+audio 1_speaker 1 normal_segment 1,E:\labelled_speech\YouTube Audio\clear speech\audio 1\speaker 1 normal\segment 1.wav,0,0
+audio 1_speaker 1 normal_segment 19,E:\labelled_speech\YouTube Audio\clear speech\audio 1\speaker 1 normal\segment 19.wav,0,0

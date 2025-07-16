@@ -75,4 +75,5 @@ def plot_patient_prediction_matrix(csv_path, output_path="patient_prediction_mat
     print(f"[✓] Matrix saved to: {output_path}")
 
 
-plot_patient_prediction_matrix("spice_things/spice_results_youtube_noiseReduce.csv")
+# plot_patient_prediction_matrix("spice_things/spice_results_youtube_noiseReduce.csv")
+plot_patient_prediction_matrix("s3prl_things/test_predictions.csv")
