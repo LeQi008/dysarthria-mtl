@@ -2,7 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Load the CSV
-df = pd.read_csv("training_stats.csv")
+csv_path = r'C:\Users\YIDAN\Desktop\projects\dysarthria-mtl-steal\s3prl_things\training_log.csv'
+df = pd.read_csv(csv_path)
 
 epochs = df["epoch"]
 
