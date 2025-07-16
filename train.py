@@ -6,6 +6,8 @@ from datetime import datetime
 import pickle
 
 from sklearn import metrics
+import plotly.figure_factory as ff
+from sklearn.metrics import confusion_matrix
 import numpy as np
 import tqdm
 import pandas as pd
@@ -32,7 +34,7 @@ def _prepare_cfg(raw_args=None):
         ),
     )
     parser.add_argument(
-        "--batch_size", type=int, default=4, help="N/A"
+        "--batch_size", type=int, default=1, help="N/A"
     )
     parser.add_argument(
         "--learning_rate", type=float, default=2e-5, help="N/A"
@@ -87,7 +89,7 @@ def _prepare_cfg(raw_args=None):
 
     if args.root_dir is None:
         # Train from scratch
-        args.root_dir = Path(f'exp_results/{datetime.today().strftime("%Y-%m-%d_%H:%M:%S")}_{args.exp_name}')
+        args.root_dir = Path(f'exp_results/{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}_{args.exp_name}')
         args.root_dir.mkdir(parents=True, exist_ok=False)
         args.train_from_ckpt = False
 
@@ -171,14 +173,14 @@ def get_tokenizer(root_dir, df):
     )
 
 
-def _get_dataset(tokenizer, target_df, **kwargs):
+def _get_dataset(tokenizer, target_df, batch_size, **kwargs):
     return torch.utils.data.DataLoader(
         DysarthriaDataset(target_df, tokenizer),
-        batch_size=1, collate_fn=_collator, pin_memory=True, **kwargs,
+        batch_size=batch_size, collate_fn=_collator, pin_memory=True, **kwargs,
     )
 
 
-def _prepare_dataset(root_dir, df, train_from_ckpt):
+def _prepare_dataset(root_dir, df, train_from_ckpt, batch_size):
     if train_from_ckpt:
         train_df = pd.read_csv(root_dir / "train.csv")
         valid_df = pd.read_csv(root_dir / "valid.csv")
@@ -199,9 +201,9 @@ def _prepare_dataset(root_dir, df, train_from_ckpt):
         test_df.to_csv(root_dir / "test.csv", index=False)
 
     tokenizer = get_tokenizer(root_dir, df)
-    train_ds = _get_dataset(tokenizer, train_df, shuffle=True)
-    valid_ds = _get_dataset(tokenizer, valid_df, shuffle=False)
-    test_ds = _get_dataset(tokenizer, test_df, shuffle=False)
+    train_ds = _get_dataset(tokenizer, train_df, batch_size, shuffle=True)
+    valid_ds = _get_dataset(tokenizer, valid_df, batch_size, shuffle=False)
+    test_ds = _get_dataset(tokenizer, test_df, batch_size, shuffle=False)
 
     return tokenizer, train_ds, valid_ds, test_ds
 
@@ -289,11 +291,12 @@ def _prepare_model_optimizer(args_cfg, tokenizer):
             "cls_weight": args_cfg.cls_weight,
         }
         cfg["vocab_size"] = len(tokenizer)
-
+        cfg["mask_time_prob"] = 0.0  # Disable time masking # Due to short audios (containing 1 word) - Leqi
+        cfg["mask_feature_prob"] = 0.0  # Disable feature masking
         model = Wav2Vec2MTL.from_pretrained(
             "facebook/wav2vec2-xls-r-300m",
             config=transformers.Wav2Vec2Config.from_dict(cfg),
-        ).to(torch.device("cpu"))
+        ).to(device)
         optimizer = torch.optim.Adam(
             model.parameters(), lr=args_cfg.learning_rate, betas=(0.9, 0.98), eps=1e-08)
 
@@ -322,13 +325,13 @@ def _eval(model, ds, tokenizer):
         assert len(x["cls_labels"]) == 1
 
         cls_labels.append(x["cls_labels"].item())
-        ctc_labels.append(_ctc_decode(x["ctc_labels"].numpy()[0]))
+        ctc_labels.append(_ctc_decode(x["ctc_labels"].cpu().numpy()[0]))
 
-        x = {k: v.to(model.device) for k, v in x.items()}
+        x = {k: v.to(device) for k, v in x.items()}
         loss, cls_loss, ctc_loss, *_, cls_logits, ctc_logits = model(**x)
 
-        cls_all.append(cls_logits.detach().numpy())
-        pred_ids = np.argmax(ctc_logits.detach().numpy(), axis=-1)[0]
+        cls_all.append(cls_logits.detach().cpu().numpy())
+        pred_ids = np.argmax(ctc_logits.detach().cpu().numpy(), axis=-1)[0]
         ctc_all.append(_ctc_decode(pred_ids))
 
         losses.append(loss.item())
@@ -351,6 +354,8 @@ def _eval(model, ds, tokenizer):
         "f1": metrics.f1_score(
             y_true=cls_labels, y_pred=prob_all.argmax(1), average="macro"),
         "per": wer(truth=ctc_labels, hypothesis=ctc_all),
+        "cls_labels": cls_labels,
+        "cls_preds": prob_all.argmax(1).tolist(),
     }
 
 
@@ -359,31 +364,47 @@ def _train(cfg, model, train_ds, valid_ds, tokenizer, optimizer, best_ckpt_path,
     eval_target = None
     steps = 0
     start_epoch = 0
+    print(f"Batch size: {cfg.batch_size}")
+    train_loss_per_epoch = []
+    val_loss_per_epoch = []
+    train_acc_per_epoch = []
+    val_acc_per_epoch = []
 
     if cfg.train_from_ckpt:
         scheduler = torch.load(last_ckpt_path / "scheduler.pt")
-        model.load_state_dict(Wav2Vec2MTL.from_pretrained(last_ckpt_path).to(torch.device("cpu")).state_dict())
+        model.load_state_dict(Wav2Vec2MTL.from_pretrained(last_ckpt_path).to(device).state_dict())
         optimizer.load_state_dict(torch.load(last_ckpt_path / "optimizer.pt"))
 
         start_epoch = scheduler["last_epoch"]
         steps = start_epoch * len(train_ds)
 
     for epoch in range(start_epoch, cfg.num_epochs):
+        epoch_train_losses = []
+        correct, total = 0, 0
         # Train
         model.enable_cls = epoch >= cfg.enable_cls_epochs
         model.train()
         train_loop = tqdm.tqdm(enumerate(train_ds))
 
         for step, x in train_loop:
-            x = {k: v.to(model.device) for k, v in x.items()}
+            x = {k: v.to(device) for k, v in x.items()}
 
-            loss, cls_loss, ctc_loss, *_ = model(**x)
+            loss, cls_loss, ctc_loss, _, _, cls_logits, _ = model(**x)
             (loss / grad_acc).backward()
 
             _losses = {"loss": loss.item(), "ctc_loss": ctc_loss.item(), "cls_loss": cls_loss.item()}
             train_loop.set_description(
                 " | ".join([f"Epoch [{epoch}] "] + [f"{k} {v:.4f}" for k, v in _losses.items()])
             )
+            
+            # Graph
+            epoch_train_losses.append(loss.item()) 
+            if model.enable_cls: # Check if classification head is activated
+                preds = cls_logits.argmax(dim=1)
+                labels = x["cls_labels"]
+                correct += (preds == labels).sum().item()
+                total += labels.size(0)
+
             for k, v in _losses.items():
                 logger(f"train/{k}", v, steps)
             steps += 1
@@ -392,12 +413,27 @@ def _train(cfg, model, train_ds, valid_ds, tokenizer, optimizer, best_ckpt_path,
             if step % grad_acc == (grad_acc - 1):
                 optimizer.step()
                 optimizer.zero_grad()
+            
+        # Graph
+        avg_train_loss = sum(epoch_train_losses) / len(epoch_train_losses)
+        train_loss_per_epoch.append(avg_train_loss)
+        if model.enable_cls and total > 0:
+            train_acc_per_epoch.append(correct / total)
+        else:
+            train_acc_per_epoch.append(None)
 
         # Evaluation
         model.eval()
         eval_results = _eval(model, valid_ds, tokenizer)
         for k, v in eval_results.items():
-            logger(f"eval/{k}", v, epoch)
+            if isinstance(v, (int, float, np.integer, np.floating)):
+                logger(f"eval/{k}", v, epoch)
+            else:
+                # Optionally print or log that this key was skipped
+                print(f"Skipping non-scalar metric: {k}")
+        # Graph
+        val_loss_per_epoch.append(eval_results.get("average_loss", 0.0))
+        val_acc_per_epoch.append(eval_results.get("accuracy", 0.0))
 
         # Bestkeeping
         if (
@@ -415,6 +451,7 @@ def _train(cfg, model, train_ds, valid_ds, tokenizer, optimizer, best_ckpt_path,
             )
             eval_target = eval_results[cfg.target_metric]
             model.save_pretrained(best_ckpt_path)
+            best_epoch = epoch
 
         # Saving everything
         if cfg.save_all_epochs:
@@ -425,6 +462,18 @@ def _train(cfg, model, train_ds, valid_ds, tokenizer, optimizer, best_ckpt_path,
     torch.save(optimizer.state_dict(), last_ckpt_path / "optimizer.pt")
     torch.save({"last_epoch": cfg.num_epochs}, last_ckpt_path / "scheduler.pt")
 
+    # Save accuracy and losses to df
+    df = pd.DataFrame({
+            "epoch": list(range(0, len(train_loss_per_epoch))),
+            "train_loss": train_loss_per_epoch,
+            "val_loss": val_loss_per_epoch,
+            "train_acc": train_acc_per_epoch,
+            "val_acc": val_acc_per_epoch
+        })
+    df.to_csv("training_stats.csv", index=False)
+
+    return best_epoch
+
 
 def _get_logger(tb_path):
     writer = SummaryWriter(log_dir=tb_path)
@@ -434,6 +483,11 @@ def _get_logger(tb_path):
 
 
 if __name__ == "__main__":
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(torch.version.cuda)           # Should show your CUDA version (e.g., '11.8')
+    print(torch.backends.cudnn.enabled) # Should be True if CUDA works
+    print(torch.cuda.device_count())    # Should be >= 1 if a GPU is available
+
     cfg = _prepare_cfg()
     print(cfg)
 
@@ -443,19 +497,49 @@ if __name__ == "__main__":
     all_ckpt_path = cfg.root_dir / "model-ckpts"
     logger = _get_logger(cfg.root_dir)
 
-    tokenizer, train_ds, valid_ds, test_ds = _prepare_dataset(cfg.root_dir, pd.read_csv(cfg.csv_path), cfg.train_from_ckpt)
+    tokenizer, train_ds, valid_ds, test_ds = _prepare_dataset(cfg.root_dir, pd.read_csv(cfg.csv_path), cfg.train_from_ckpt, cfg.batch_size)
 
     model, optimizer = _prepare_model_optimizer(cfg, tokenizer)
+    print("Using device:", device)
+    print("Model device:", next(model.parameters()).device)
 
     # Train & Validation loop
-    _train(
+    best_epoch = _train(
         cfg, model, train_ds, valid_ds, tokenizer, optimizer,
         best_ckpt_path=best_ckpt_path, last_ckpt_path=last_ckpt_path, all_ckpt_path=all_ckpt_path, logger=logger)
 
     # Test on the best model
-    best_model = Wav2Vec2MTL.from_pretrained(best_ckpt_path).to(torch.device("cpu"))
+    best_model = Wav2Vec2MTL.from_pretrained(best_ckpt_path).to(device)
     test_results = _eval(best_model, test_ds, tokenizer)
+
+    # Save a confusion matrix as well
+    y_true = test_results["cls_labels"]
+    y_pred = test_results["cls_preds"]
+    cm = confusion_matrix(y_true, y_pred)
+    labels = list(map(str, sorted(set(y_true) | set(y_pred))))  # Ensure all classes covered
+    fig = ff.create_annotated_heatmap(
+        z=cm,
+        x=labels,  # predicted classes
+        y=labels,  # true classes
+        annotation_text=cm.astype(str),
+        colorscale='Blues'
+    )
+    fig.update_layout(
+        title_text="Confusion Matrix",
+        xaxis_title="Predicted Label",
+        yaxis_title="True Label"
+    )
+    fig.write_image(str(cfg.root_dir / "confusion_matrix.png"))
+
     print(test_results)
     for k, v in test_results.items():
-        logger(f"test/{k}", v, 0)
-    json.dump(test_results, open(cfg.root_dir / "test_metric_results.json", "w"))
+        if isinstance(v, (int, float, np.integer, np.floating)):
+            logger(f"test/{k}", v, 0)
+        else:
+            # Optionally print or log that this key was skipped
+            print("We actually made it to test_result_items")
+            print(f"Skipping non-scalar metric: {k}")
+
+    test_results["best_epoch"] = best_epoch
+    with open(cfg.root_dir / "test_metric_results.json", "w") as f:
+        json.dump(test_results, f, indent=4)

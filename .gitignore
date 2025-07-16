@@ -2,3 +2,6 @@ dataset/*
 exp_results/*
 *.csv
 envs/*
+/venv
+/venvspice
+/venvs3prl
