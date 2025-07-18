@@ -50,14 +50,15 @@ def plot_confusion_matrix_spice(csv_path):
                 yticklabels=[0, 1, 2, 3])
     plt.xlabel("Predicted Score")
     plt.ylabel("True Category")
-    plt.title("SpICE Intelligibility Classifier: Confusion Matrix")
+    plt.title("Confusion Matrix")
 
-    # Save to file
-    plt.savefig("confusion_matrix_spice_youtube_noiseReduce.png", dpi=300)
-    plt.show()
+    # Save in same folder as CSV
+    save_path = os.path.join(os.path.dirname(csv_path), "confusion_matrix.png")
+    plt.savefig(save_path, dpi=300)
 
 # Example usage
-# plot_and_save_confusion_matrix('exp_results/2025-07-10_01-25-04_MTL_E10_cls=5_e=50_bs=1_ctcW=0.1/test_metric_results.json')
-plot_confusion_matrix_spice("spice_things/spice_results_youtube_noiseReduce.csv")
-# plot_confusion_matrix_spice("s3prl_things/test_predictions.csv")
+if __name__ == "__main__":
+    # plot_and_save_confusion_matrix('exp_results/2025-07-10_01-25-04_MTL_E10_cls=5_e=50_bs=1_ctcW=0.1/test_metric_results.json')
+    plot_confusion_matrix_spice("spice_things/spice_results_youtube_noiseReduce.csv")
+    # plot_confusion_matrix_spice("s3prl_things/test_predictions.csv")
 

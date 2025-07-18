@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import re
+import os
 
 def extract_patient_code(name):
     # Match Torgo types that have "Session" in their name
@@ -17,21 +18,16 @@ def extract_patient_code(name):
             return f"A{audio_id}S{speaker_id}"
         return "Unknown"
 
-def plot_patient_prediction_matrix(csv_path, output_path="patient_prediction_matrix.png"):
+def plot_patient_prediction_matrix(csv_path):
     # Load CSV
     df = pd.read_csv(csv_path)
 
-    # ===== Youtube Audio =====
+    # ===== Youtube Audio & Torgo =====
     # Extract compact patient ID
     df["patient_id"] = df["name"].apply(extract_patient_code)
     # Create display label: "A1S3 (label 2)"
     df["patient_label"] = df.apply(lambda row: f"{row['patient_id']} (label {row['category']})", axis=1)
 
-    # ===== Torgo Audio =====
-    # # Extract patient ID
-    # df["patient_id"] = df["name"].apply(lambda x: x.split("_")[0])
-    # # Create combined label with patient and true category
-    # df["patient_label"] = df.apply(lambda row: f"{row['patient_id']} (label {row['category']})", axis=1)
 
     # Create a new DataFrame with patient and category for sorting
     patient_order = (
@@ -69,11 +65,12 @@ def plot_patient_prediction_matrix(csv_path, output_path="patient_prediction_mat
     plt.ylabel("Patient (True Label)")
     plt.tight_layout()
 
-    plt.savefig(output_path, dpi=300)
-    plt.show()
+    # Save in same folder as CSV
+    save_path = os.path.join(os.path.dirname(csv_path), "patient_prediction_matrix.png")
+    plt.savefig(save_path, dpi=300)
 
-    print(f"[✓] Matrix saved to: {output_path}")
+    print(f"[✓] Matrix saved to: {save_path}")
 
-
-# plot_patient_prediction_matrix("spice_things/spice_results_youtube_noiseReduce.csv")
-plot_patient_prediction_matrix("s3prl_things/test_predictions.csv")
+if __name__ == "__main__":
+    # plot_patient_prediction_matrix("spice_things/spice_results_youtube_noiseReduce.csv")
+    plot_patient_prediction_matrix("s3prl_things/test_predictions.csv")

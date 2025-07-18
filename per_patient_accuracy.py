@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import re
+import os
 
 def extract_patient_code(name):
     # Match Torgo types that have "Session" in their name
@@ -18,7 +19,7 @@ def extract_patient_code(name):
             return f"A{audio_id}S{speaker_id}"
         return "Unknown"
 
-def plot_patient_accuracies(csv_path, output_path="patient_accuracy_barplot.png"):
+def plot_patient_accuracies(csv_path):
     df = pd.read_csv(csv_path)
     df["patient_id"] = df["name"].apply(extract_patient_code)
 
@@ -48,7 +49,7 @@ def plot_patient_accuracies(csv_path, output_path="patient_accuracy_barplot.png"
     # Plot bar chart
     plt.figure(figsize=(10, max(4, 0.4 * len(summary))))
 
-    # Create display labels: A1S3 (label = 2)
+    # Create display labels eg: A1S3 (label = 2)
     summary["label_str"] = summary.apply(
         lambda row: f"{row['patient_id']} (label = {row['label']})", axis=1
     )
@@ -72,10 +73,11 @@ def plot_patient_accuracies(csv_path, output_path="patient_accuracy_barplot.png"
     plt.title("Per-Patient Prediction Accuracy (Sorted by Severity Label)")
     plt.xlim(0, 100)
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300)
-    plt.show()
+    # Save in same folder as CSV
+    save_path = os.path.join(os.path.dirname(csv_path), "patient_accuracy_barplot.png")
+    plt.savefig(save_path, dpi=300)
 
-    print(f"[✓] Saved plot to: {output_path}")
+    print(f"[✓] Saved plot to: {save_path}")
 
 import pandas as pd
 
@@ -112,5 +114,6 @@ def print_patient_accuracies(csv_path):
     print(f"\nTotal: {total_correct}/{total_count} correct → {total_accuracy:.2f}%")
 
     
-# plot_patient_accuracies("spice_things/spice_results_youtube.csv")
-print_patient_accuracies("spice_things/spice_results_torgo1000_over10Char.csv")
+if __name__ == "__main__":
+    # plot_patient_accuracies("spice_things/spice_results_youtube.csv")
+    print_patient_accuracies("spice_things/spice_results_torgo1000_over10Char.csv")
