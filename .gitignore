@@ -7,3 +7,7 @@ envs/*
 /venvspice
 /venvs3prl
 multiclass_results*/
+spice_things/spice_results
+**/__pycache__/
+wav2vec_things/models
+wav2vec_things/models_frozenbase
