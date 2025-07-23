@@ -14,7 +14,7 @@ def plot_and_save_confusion_matrix(json_path):
     cls_preds = data['cls_preds']
 
     # Ensure matrix is 5x5 even if only subset of labels is used
-    all_classes = [0, 1, 2, 3, 4]
+    all_classes = [0, 1, 2, 3]
     cm = confusion_matrix(cls_labels, cls_preds, labels=all_classes)
 
     # Plot the confusion matrix
@@ -41,12 +41,12 @@ def plot_confusion_matrix_spice(csv_path):
     y_pred = df["predicted_score"]
 
     # Compute confusion matrix
-    cm = confusion_matrix(y_true, y_pred, labels=[0, 1, 2, 3, 4])
+    cm = confusion_matrix(y_true, y_pred, labels=[0, 1, 2, 3])
 
     # Plot
     plt.figure(figsize=(8, 6))
     sns.heatmap(cm, annot=True, fmt='d', cmap="Blues", 
-                xticklabels=[0, 1, 2, 3, 4], 
+                xticklabels=[0, 1, 2, 3], 
                 yticklabels=[0, 1, 2, 3])
     plt.xlabel("Predicted Score")
     plt.ylabel("True Category")
@@ -61,5 +61,6 @@ if __name__ == "__main__":
     # plot_and_save_confusion_matrix('exp_results/2025-07-10_01-25-04_MTL_E10_cls=5_e=50_bs=1_ctcW=0.1/test_metric_results.json')
     # plot_confusion_matrix_spice("spice_things/spice_results_youtube_noiseReduce.csv")
     # plot_confusion_matrix_spice("s3prl_things/test_predictions.csv")
-    plot_confusion_matrix_spice("wav2vec_things/models_frozenbase/wav2vec_test_predictions.csv")
+    path = r"wav2vec_things\models\pseudo1\wav2vec_test_predictions.csv"
+    plot_confusion_matrix_spice(path)
 

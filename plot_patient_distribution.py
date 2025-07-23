@@ -73,4 +73,4 @@ def plot_patient_prediction_matrix(csv_path):
 
 if __name__ == "__main__":
     # plot_patient_prediction_matrix("spice_things/spice_results_youtube_noiseReduce.csv")
-    plot_patient_prediction_matrix("wav2vec_things/models_frozenbase/wav2vec_test_predictions.csv")
+    plot_patient_prediction_matrix("wav2vec_things/wav2vec_test_predictions.csv")
