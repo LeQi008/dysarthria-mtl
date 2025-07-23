@@ -42,7 +42,7 @@ def plot_patient_prediction_matrix(csv_path):
         df.groupby(["patient_label", "predicted_score"])
         .size()
         .unstack(fill_value=0)
-        .reindex(columns=range(4), fill_value=0)
+        .reindex(columns=range(3), fill_value=0)
     )
 
     # Reorder rows by category (ascending)
