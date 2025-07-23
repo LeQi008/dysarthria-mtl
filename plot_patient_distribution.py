@@ -42,7 +42,7 @@ def plot_patient_prediction_matrix(csv_path):
         df.groupby(["patient_label", "predicted_score"])
         .size()
         .unstack(fill_value=0)
-        .reindex(columns=range(3), fill_value=0)
+        .reindex(columns=range(4), fill_value=0)
     )
 
     # Reorder rows by category (ascending)
@@ -73,4 +73,5 @@ def plot_patient_prediction_matrix(csv_path):
 
 if __name__ == "__main__":
     # plot_patient_prediction_matrix("spice_things/spice_results_youtube_noiseReduce.csv")
-    plot_patient_prediction_matrix("wav2vec_things/wav2vec_test_predictions.csv")
+    path = r"wav2vec_things\models\pseudo1\wav2vec_test_predictions.csv"
+    plot_patient_prediction_matrix(path)
