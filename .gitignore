@@ -4,6 +4,7 @@ exp_results/*
 *.ckpt
 envs/*
 /venv
+/venv_mtl
 /venvspice
 /venvs3prl
 multiclass_results*/
